@@ -1,1 +1,1092 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plate Tectonics — Study Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=Crimson+Pro:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --magma: #c0392b;
+    --deep: #1a0a00;
+    --crust: #2c1810;
+    --mantle: #8b3a0f;
+    --lava: #e8621a;
+    --ash: #d4c5b5;
+    --pumice: #f2ebe3;
+    --obsidian: #0d0500;
+    --gold: #c9a84c;
+    --teal: #1e6b6b;
+    --correct: #2a7a4b;
+    --wrong: #8b1a1a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--obsidian);
+    color: var(--ash);
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 18px;
+    min-height: 100vh;
+    overflow-x: hidden;
+    cursor: default;
+  }
+
+  /* Animated lava background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 80%, rgba(192,57,43,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 20%, rgba(139,58,15,0.12) 0%, transparent 50%),
+      radial-gradient(ellipse 100% 80% at 50% 110%, rgba(200,80,20,0.2) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+    animation: lavaShift 12s ease-in-out infinite alternate;
+  }
+
+  @keyframes lavaShift {
+    0% { opacity: 0.6; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.05); }
+  }
+
+  /* Tectonic plate crack lines */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(135deg, transparent 49.5%, rgba(192,57,43,0.08) 49.5%, rgba(192,57,43,0.08) 50.5%, transparent 50.5%),
+      linear-gradient(45deg, transparent 74.5%, rgba(139,58,15,0.06) 74.5%, rgba(139,58,15,0.06) 75.5%, transparent 75.5%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── HEADER ── */
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 60px 40px 40px;
+    text-align: center;
+    border-bottom: 1px solid rgba(192,57,43,0.3);
+  }
+
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--lava);
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeUp 0.6s 0.1s forwards;
+  }
+
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 7vw, 5.5rem);
+    font-weight: 900;
+    color: var(--pumice);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.2s forwards;
+  }
+
+  h1 span {
+    color: var(--lava);
+    font-style: italic;
+  }
+
+  .header-sub {
+    font-family: 'Crimson Pro', serif;
+    font-style: italic;
+    font-size: 1.1rem;
+    color: rgba(212,197,181,0.6);
+    margin-top: 12px;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.35s forwards;
+  }
+
+  /* ── CONTROLS BAR ── */
+  .controls {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(13,5,0,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(192,57,43,0.2);
+    padding: 14px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .controls-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: rgba(212,197,181,0.4);
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .filter-btns {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    flex: 1;
+  }
+
+  .filter-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 6px 14px;
+    border: 1px solid rgba(192,57,43,0.3);
+    background: transparent;
+    color: rgba(212,197,181,0.6);
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .filter-btn:hover,
+  .filter-btn.active {
+    background: var(--magma);
+    border-color: var(--magma);
+    color: var(--pumice);
+  }
+
+  .progress-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-left: auto;
+  }
+
+  .progress-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    white-space: nowrap;
+  }
+
+  .progress-bar-outer {
+    width: 100px;
+    height: 3px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-bar-inner {
+    height: 100%;
+    background: linear-gradient(90deg, var(--magma), var(--gold));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* ── MAIN LAYOUT ── */
+  main {
+    position: relative;
+    z-index: 10;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ── SECTION HEADERS ── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 48px 0 20px;
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.5s ease;
+  }
+
+  .section-header.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .section-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    color: var(--lava);
+    background: rgba(192,57,43,0.1);
+    border: 1px solid rgba(192,57,43,0.3);
+    padding: 4px 10px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--pumice);
+    letter-spacing: -0.01em;
+  }
+
+  .section-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(192,57,43,0.4), transparent);
+  }
+
+  /* ── Q&A CARDS ── */
+  .qa-card {
+    background: rgba(26,10,0,0.7);
+    border: 1px solid rgba(192,57,43,0.2);
+    border-left: 3px solid rgba(192,57,43,0.4);
+    border-radius: 4px;
+    margin-bottom: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  .qa-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .qa-card:hover {
+    border-color: rgba(192,57,43,0.5);
+    border-left-color: var(--lava);
+    box-shadow: 0 4px 24px rgba(192,57,43,0.1);
+  }
+
+  .qa-card.revealed {
+    border-left-color: var(--gold);
+    background: rgba(26,10,0,0.85);
+  }
+
+  .qa-card.correct-mark {
+    border-left-color: #2a7a4b;
+  }
+
+  .qa-card.wrong-mark {
+    border-left-color: var(--magma);
+  }
+
+  .question-row {
+    padding: 18px 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    user-select: none;
+  }
+
+  .q-icon {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: var(--lava);
+    background: rgba(192,57,43,0.12);
+    border: 1px solid rgba(192,57,43,0.3);
+    padding: 3px 7px;
+    border-radius: 2px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .question-text {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--pumice);
+    line-height: 1.45;
+    flex: 1;
+  }
+
+  .reveal-hint {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: rgba(212,197,181,0.25);
+    text-transform: uppercase;
+    flex-shrink: 0;
+    margin-top: 5px;
+    transition: color 0.2s;
+  }
+
+  .qa-card:hover .reveal-hint {
+    color: rgba(192,57,43,0.5);
+  }
+
+  .answer-wrap {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .answer-wrap.open {
+    max-height: 2000px;
+  }
+
+  .answer-inner {
+    padding: 0 20px 18px 20px;
+    border-top: 1px solid rgba(192,57,43,0.15);
+    padding-top: 14px;
+  }
+
+  .answer-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .answer-text {
+    font-family: 'Crimson Pro', serif;
+    font-size: 1rem;
+    font-weight: 300;
+    color: rgba(212,197,181,0.88);
+    line-height: 1.7;
+  }
+
+  .answer-text strong {
+    color: var(--pumice);
+    font-weight: 600;
+  }
+
+  .answer-text em {
+    color: var(--gold);
+    font-style: italic;
+  }
+
+  /* Self-assessment buttons */
+  .assessment-row {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .assess-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.15em;
+    color: rgba(212,197,181,0.3);
+    text-transform: uppercase;
+    align-self: center;
+    flex: 1;
+  }
+
+  .assess-btn {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border: 1px solid;
+    background: transparent;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.2s;
+  }
+
+  .assess-btn.got-it {
+    border-color: rgba(42,122,75,0.4);
+    color: rgba(42,122,75,0.7);
+  }
+
+  .assess-btn.got-it:hover,
+  .assess-btn.got-it.selected {
+    background: rgba(42,122,75,0.15);
+    border-color: #2a7a4b;
+    color: #4caf7a;
+  }
+
+  .assess-btn.review-it {
+    border-color: rgba(192,57,43,0.4);
+    color: rgba(192,57,43,0.7);
+  }
+
+  .assess-btn.review-it:hover,
+  .assess-btn.review-it.selected {
+    background: rgba(192,57,43,0.12);
+    border-color: var(--magma);
+    color: var(--lava);
+  }
+
+  /* ── STATS PANEL ── */
+  .stats-panel {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin: 32px 0 0;
+    padding: 24px;
+    background: rgba(26,10,0,0.8);
+    border: 1px solid rgba(192,57,43,0.2);
+    border-radius: 4px;
+    opacity: 0;
+    animation: fadeUp 0.7s 0.5s forwards;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--lava);
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(212,197,181,0.4);
+    margin-top: 4px;
+  }
+
+  /* ── QUIZ MODE ── */
+  .quiz-banner {
+    display: none;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100;
+    background: rgba(13,5,0,0.95);
+    border: 1px solid var(--lava);
+    border-radius: 4px;
+    padding: 14px 18px;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: var(--ash);
+    text-transform: uppercase;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .quiz-banner.show { display: block; }
+
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(192,57,43,0); }
+    50% { box-shadow: 0 0 0 8px rgba(192,57,43,0.1); }
+  }
+
+  .quiz-score {
+    color: var(--gold);
+    font-size: 14px;
+    margin-top: 4px;
+  }
+
+  /* ── SEARCH ── */
+  .search-wrap {
+    position: relative;
+    margin-left: auto;
+  }
+
+  .search-input {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(192,57,43,0.2);
+    color: var(--ash);
+    padding: 6px 14px 6px 32px;
+    border-radius: 2px;
+    outline: none;
+    width: 180px;
+    transition: all 0.2s;
+  }
+
+  .search-input:focus {
+    border-color: rgba(192,57,43,0.5);
+    width: 220px;
+  }
+
+  .search-icon {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 11px;
+    color: rgba(212,197,181,0.3);
+    pointer-events: none;
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--obsidian); }
+  ::-webkit-scrollbar-thumb { background: var(--mantle); border-radius: 2px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 640px) {
+    header { padding: 40px 20px 30px; }
+    .controls { padding: 12px 16px; }
+    main { padding: 24px 16px 60px; }
+    .stats-panel { grid-template-columns: repeat(3, 1fr); }
+    .search-input { width: 130px; }
+    .search-input:focus { width: 150px; }
+  }
+
+  /* Highlight for search */
+  .highlight {
+    background: rgba(201,168,76,0.2);
+    color: var(--gold);
+    border-radius: 2px;
+    padding: 0 2px;
+  }
+
+  .hidden-card { display: none; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-label">GM 220 — Topic 4 — Study Guide</div>
+  <h1>Plate <span>Tectonics</span></h1>
+  <div class="header-sub">Click any question to reveal the A+ answer &bull; Mark your confidence to track progress</div>
+</header>
+
+<div class="controls">
+  <span class="controls-label">Filter</span>
+  <div class="filter-btns" id="filterBtns">
+    <button class="filter-btn active" data-filter="all">All</button>
+    <button class="filter-btn" data-filter="definitions">Definitions</button>
+    <button class="filter-btn" data-filter="evidence">Evidence</button>
+    <button class="filter-btn" data-filter="seafloor">Sea Floor</button>
+    <button class="filter-btn" data-filter="boundaries">Boundaries</button>
+    <button class="filter-btn" data-filter="velocity">Velocities</button>
+    <button class="filter-btn" data-filter="wilson">Wilson Cycle</button>
+    <button class="filter-btn" data-filter="ocean">Ocean Basins</button>
+    <button class="filter-btn" data-filter="review">⚑ Needs Review</button>
+    <button class="filter-btn" data-filter="mastered">✓ Mastered</button>
+  </div>
+  <div class="search-wrap">
+    <span class="search-icon">⌕</span>
+    <input type="text" class="search-input" id="searchInput" placeholder="Search questions...">
+  </div>
+  <div class="progress-wrap">
+    <span class="progress-text" id="progressText">0 / 0</span>
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="progressBar"></div></div>
+  </div>
+</div>
+
+<main id="mainContent">
+
+  <div class="stats-panel">
+    <div class="stat-item">
+      <div class="stat-value" id="statTotal">0</div>
+      <div class="stat-label">Total Questions</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="statMastered" style="color:var(--gold)">0</div>
+      <div class="stat-label">Mastered</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-value" id="statReview" style="color:var(--lava)">0</div>
+      <div class="stat-label">Needs Review</div>
+    </div>
+  </div>
+
+</main>
+
+<div class="quiz-banner" id="quizBanner">
+  ⚡ Quiz Mode Active
+  <div class="quiz-score" id="quizScore"></div>
+</div>
+
+<script>
+const QA_DATA = [
+  // ── DEFINITIONS & OVERVIEW ──
+  {
+    section: "Definitions & Overview",
+    category: "definitions",
+    q: "What is plate tectonics?",
+    a: "Plate tectonics is the scientific theory that Earth's <strong>lithosphere is divided into large tectonic plates</strong> that have been slowly moving for about <em>3.4 billion years</em>. It explains the formation of mountains, volcanoes, earthquakes, and the distribution of continents and ocean basins. The theory solidified in the 1960s and transformed the earth sciences."
+  },
+  {
+    section: "Definitions & Overview",
+    category: "definitions",
+    q: "What phenomena does plate tectonics provide a unified explanation for?",
+    a: "Plate tectonics explains: <strong>(1)</strong> igneous, sedimentary, and metamorphic rock formation; <strong>(2)</strong> the distribution of earthquakes and volcanoes; <strong>(3)</strong> the origin of continents and ocean basins; <strong>(4)</strong> the distribution of fossil plants and animals; <strong>(5)</strong> the genesis and destruction of mountain chains; and <strong>(6)</strong> continental drift."
+  },
+  {
+    section: "Definitions & Overview",
+    category: "definitions",
+    q: "Who is called the \"Grandfather of Plate Tectonics\" and what was his contribution?",
+    a: "<strong>Alfred Wegener</strong> is called the \"Grandfather of Plate Tectonics.\" He was the first to hypothesize that the world's continents were once assembled into a supercontinent called <em>Pangea</em> and have since moved apart. His idea developed during the first decades of the 20th century and became the foundation of modern plate tectonic theory."
+  },
+  // ── CONTINENTAL DRIFT & EVIDENCE ──
+  {
+    section: "Continental Drift & Evidence",
+    category: "evidence",
+    q: "What was Pangea and when did it exist?",
+    a: "<strong>Pangea</strong> was a supercontinent that existed approximately <em>225 million years ago</em>, consisting of all present-day continents joined together. It began breaking up around 200 Ma, splitting into <strong>Laurasia</strong> (northern: North America, Europe, Asia) and <strong>Gondwana</strong> (southern: South America, Africa, India, Australia, Antarctica) around <em>150 million years ago</em>, eventually forming today's continents."
+  },
+  {
+    section: "Continental Drift & Evidence",
+    category: "evidence",
+    q: "What are the five main lines of evidence for continental drift?",
+    a: "<strong>(1) Fit of the continents</strong> — coastlines like South America and Africa match like puzzle pieces. <strong>(2) Plant fossils (Glossopteris)</strong> — a fossil fern found across all southern hemisphere continents. <strong>(3) Fossil animals</strong> — land-dwelling reptiles found on multiple continents that couldn't have crossed modern oceans. <strong>(4) Paleoclimatologic evidence</strong> — ancient glacier, desert, and salt distributions only make sense in a Pangean configuration. <strong>(5) Paleomagnetic evidence</strong> — rocks record Earth's magnetic field at formation, showing continental movement."
+  },
+  {
+    section: "Continental Drift & Evidence",
+    category: "evidence",
+    q: "Why is the Glossopteris fossil significant as evidence for continental drift?",
+    a: "<strong>Glossopteris</strong> is a fossil fern with <em>large seeds</em> found across all southern hemisphere landmasses — South America, Africa, India, Australia, and Antarctica. Its seeds were too large and heavy to be dispersed across open oceans by wind or water. Therefore, these continents must once have been physically connected, providing compelling evidence for continental drift."
+  },
+  {
+    section: "Continental Drift & Evidence",
+    category: "evidence",
+    q: "What is paleoclimatologic evidence and how does it support Pangea?",
+    a: "Ancient distributions of <strong>evaporites</strong> (salt deposits), <strong>coals</strong>, <strong>deserts</strong>, and <strong>glaciers</strong> do not make sense with continents in their current positions. For example, glacial deposits are found in tropical regions and coal swamps in polar regions. These distributions only make logical sense if the continents were once <em>assembled into their Pangean configuration</em>, with different regions occupying different climatic zones."
+  },
+  {
+    section: "Continental Drift & Evidence",
+    category: "evidence",
+    q: "What is paleomagnetic evidence and how does it support plate tectonics?",
+    a: "Many rocks record Earth's <strong>magnetic field orientation</strong> when they form (from cooling lava or sediment deposition). The Earth's poles have switched numerous times in geologic history. By analyzing these magnetic signatures in rocks, scientists can reconstruct past positions of the continents. Matching magnetic stripe patterns on <em>either side of mid-oceanic ridges</em> confirm not only that plates have moved, but that new crust is continuously created at the ridges."
+  },
+  // ── SEA FLOOR SPREADING ──
+  {
+    section: "Sea Floor Spreading",
+    category: "seafloor",
+    q: "What is sea floor spreading?",
+    a: "<strong>Sea floor spreading</strong> is the process by which <em>new oceanic crust is formed at mid-ocean ridges</em> through volcanic activity. Magma wells up from the asthenosphere, fills fractures (dikes), solidifies, and then the new crust gradually moves away from the ridge on both sides — effectively pushing the tectonic plates apart. This process creates the symmetrical magnetic stripe patterns observed in oceanic crust."
+  },
+  {
+    section: "Sea Floor Spreading",
+    category: "seafloor",
+    q: "What is a mid-ocean ridge? Give an example and its key dimensions.",
+    a: "A mid-ocean ridge is a <strong>linear underwater mountain range</strong> formed at divergent plate boundaries where seafloor spreading occurs. Example: the <em>Mid-Atlantic Ridge</em> — it runs north-south through the entire Atlantic Ocean. Key dimensions: approximately <strong>1,500 km wide</strong> and <strong>2 km above</strong> the surrounding abyssal plains. The global mid-ocean ridge system extends about <em>65,000 km</em>, making it the longest mountain chain on Earth."
+  },
+  {
+    section: "Sea Floor Spreading",
+    category: "seafloor",
+    q: "What is a magmatic dike and how does it relate to sea floor spreading?",
+    a: "A <strong>magmatic dike</strong> is a sheet of igneous rock formed when <em>magma fills a fracture</em> in older rock beds and solidifies. Dike rock is usually more resistant to weathering than surrounding rock. At mid-ocean ridges, dikes form as magma intrudes into the oceanic crust. When lava cools, it records the magnetic polarity of Earth at that time. The <em>symmetrical magnetic stripe patterns</em> on either side of ridges directly prove sea floor spreading."
+  },
+  {
+    section: "Sea Floor Spreading",
+    category: "seafloor",
+    q: "How do positive and negative magnetic anomalies provide evidence for sea floor spreading?",
+    a: "As new oceanic crust forms at the ridge and cools, it records Earth's current magnetic polarity — either <strong>normal</strong> or <strong>reversed</strong>. As the crust spreads away from the ridge, each new episode of reversal creates a new stripe. The result is <em>matching, mirror-image patterns</em> of magnetic stripes on both sides of the ridge. The width and polarity of stripes on one side exactly match those on the other side, proving the ridge is the source and the crust spreads outward."
+  },
+  // ── PLATE BOUNDARIES ──
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "What are the three types of plate boundaries and their basic characteristics?",
+    a: "<strong>(1) Divergent</strong> — plates move apart; new crust is created (e.g., mid-oceanic ridges, East African Rift). <strong>(2) Convergent</strong> — plates collide; one plate is typically subducted and destroyed (e.g., subduction zones, collision zones). <strong>(3) Transform</strong> — plates slide horizontally past each other; crust is <em>neither created nor destroyed</em> (e.g., San Andreas Fault)."
+  },
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "What geological processes are associated with each plate boundary type?",
+    a: "<strong>Divergent:</strong> plate growth, mild/shallow earthquakes, volcanism (basaltic). <strong>Convergent:</strong> mountain building (orogeny), crustal consumption, strong/deep earthquakes (Benioff zone), volcanism (andesitic), partial melting, accretionary prisms. <strong>Transform:</strong> strong earthquakes (especially in continental crust), <em>no volcanism</em>, no crust created or destroyed."
+  },
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "Why are earthquakes at divergent boundaries generally mild and shallow?",
+    a: "At divergent boundaries, the <strong>zone of brittle deformation is fairly thin</strong> — only the lithosphere behaves brittly and can fracture to generate earthquakes. The <em>asthenosphere</em> beneath behaves <strong>plastically</strong> (like a viscous fluid) and therefore does NOT generate earthquakes. Since the brittle zone is thin, earthquakes are shallow in depth and relatively mild in magnitude."
+  },
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "What is subduction and why does the oceanic plate sink?",
+    a: "<strong>Subduction</strong> is the process where an oceanic plate <em>bends and sinks downward into the asthenosphere</em> when it collides with another plate. The oceanic plate sinks because <strong>oceanic lithosphere is denser than the asthenosphere</strong> (~3.3 g/cm³ vs. the less dense asthenosphere). This density difference, combined with the cooling and aging of the plate as it moves away from the ridge, makes it negatively buoyant."
+  },
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "What are the three settings in which convergent boundaries occur?",
+    a: "<strong>(1) Oceanic-Oceanic</strong> — one oceanic plate subducts beneath another; forms island arcs (volcanic) and ocean trenches. <strong>(2) Oceanic-Continental</strong> — denser oceanic crust subducts beneath continental crust; forms continental volcanic arcs, ocean trenches, and accretionary prisms. <strong>(3) Continental-Continental</strong> — neither plate subducts (both too buoyant); collision crumples rocks into <em>collisional mountain belts</em> (e.g., Himalayas from India–Eurasia collision)."
+  },
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "What is an oceanic trench and how is it formed?",
+    a: "An <strong>oceanic trench</strong> is a deep, linear depression on the ocean floor formed by the <em>downward bending of oceanic crust</em> as it subducts beneath another plate at a convergent boundary. Trenches are the deepest features on Earth's surface. They form in both oceanic-oceanic and oceanic-continental subduction settings."
+  },
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "What is a volcanic arc and how does it form at a subduction zone?",
+    a: "A <strong>volcanic arc</strong> is a chain of volcanoes that forms parallel to an oceanic trench. Formation process: as the subducting plate descends, it warms and releases <em>water</em> from its sediments and hydrated basalts. This water <strong>lowers the melting point</strong> of the surrounding mantle rock. Partial melting generates magma that is less dense, so it <em>rises through the overriding plate</em> and erupts to form the volcanic arc. The distance of the arc from the trench depends on the <em>dip angle</em> of the subducting plate."
+  },
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "What is the Benioff zone and who discovered it?",
+    a: "The <strong>Benioff zone</strong> (Wadati-Benioff zone) is a <em>downward-sloping plane of earthquake activity</em> coinciding with the top of the subducting oceanic plate. <strong>Hugo Benioff</strong> detected these earthquakes in the early 1950s on faults dipping 30–60° below volcanic arcs of Pacific margins. Plate tectonic theory recognizes these as the sites of subduction. Earthquake depths range from shallow near the trench to very deep (<em>>600 km</em>) as the plate descends into the mantle."
+  },
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "What is an accretionary prism and give two examples.",
+    a: "An <strong>accretionary prism</strong> (or accretionary wedge) is a wedge of <em>deformed sediments scraped off the subducting plate</em> and welded onto the overriding plate — like a bulldozer pushing sediment into a pile. These contorted sediments can be pushed above sea level to form landmasses. Examples: <strong>Washington's Olympic Peninsula</strong> and <strong>Taiwan</strong>."
+  },
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "What is orogeny and what plate tectonic setting produces it?",
+    a: "<strong>Orogeny</strong> means <em>mountain making/building</em>, especially by the folding and thrusting of rock layers. In plate tectonics, orogeny occurs at the boundaries of <em>colliding plates</em> where marginal sedimentary deposits are crumpled, and magmatism/volcanism are initiated. It is most dramatic at <strong>continental-continental convergent boundaries</strong> where the crust is too buoyant to subduct, causing it to buckle and thicken into mountain belts (e.g., the Himalayas)."
+  },
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "What happens when two continental plates collide at a convergent boundary?",
+    a: "<strong>Continental crust is too buoyant (low density) to be subducted</strong> into the denser mantle. When two continental plates collide, subduction ceases at the suture zone. The two plates crumple at their edges, producing a <em>collisional mountain belt</em> marked by folded and thrusted rocks, greatly thickened continental crust, and a suture zone. Classic example: the <strong>Himalayan Mountains</strong>, formed by the ongoing collision of the Indian Plate with the Eurasian Plate."
+  },
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "What are transform plate boundaries? Name three examples.",
+    a: "Transform boundaries are where <strong>two plates slide horizontally past each other</strong>. Crust is <em>neither created nor destroyed</em>. They may occur between oceanic-oceanic, oceanic-continental, or continental-continental crust. Examples: <strong>San Andreas Fault</strong> (California, USA), <strong>North Anatolian Fault</strong> (Turkey), and <strong>Dead Sea Fault</strong> (Israel/Jordan). Earthquakes can be quite strong, especially where continental crust is involved. There is a <em>notable absence of volcanism</em>."
+  },
+  {
+    section: "Plate Boundaries",
+    category: "boundaries",
+    q: "What is the difference between a transform fault and a fracture zone?",
+    a: "A <strong>transform fault</strong> is the <em>seismically active</em> portion of the boundary — located between offset mid-ocean ridge crests where two lithospheric blocks move in opposite directions. A <strong>fracture zone</strong> is the <em>seismically inactive</em> extension of the transform beyond the ridge crests, where the plates on both sides move in the same direction and there is no relative motion. Fracture zones are recognized by bathymetric features: escarpments, ridges, troughs, and offset magnetic anomalies."
+  },
+  // ── PLATE VELOCITIES ──
+  {
+    section: "Plate Velocities",
+    category: "velocity",
+    q: "What is the range of plate velocities and how are they measured?",
+    a: "Plate velocities range from about <strong>1 mm/year to 200 mm/year</strong> (equivalent to up to 8 inches/year). Measured by two methods: <strong>(1) Direct measurement</strong> — extremely precise GPS-based positioning equipment for short-term (months to decades) movements. <strong>(2) Geological estimation</strong> — seafloor spreading rates and the azimuths of ocean basin faults for long-term (millions of years) estimates."
+  },
+  {
+    section: "Plate Velocities",
+    category: "velocity",
+    q: "What does the lack of differential movement within plate interiors confirm about plate tectonic theory?",
+    a: "Measurements show that most plates deform internally at rates no faster than <strong>1–2 mm/year</strong>. This lack of differential movement confirms the <em>central hypothesis</em> of plate tectonic theory: that <strong>plate interiors remain rigid and stable over geologic time</strong>. Plates behave as coherent rigid blocks floating on the more mobile, plastic asthenosphere."
+  },
+  // ── WILSON CYCLE ──
+  {
+    section: "The Wilson Cycle",
+    category: "wilson",
+    q: "What is the Wilson Cycle?",
+    a: "The <strong>Wilson Cycle</strong> is a model that describes the <em>opening and closing of ocean basins</em> and the subduction and divergence of tectonic plates during the <strong>assembly and disassembly of supercontinents</strong>. The cycle is driven by plate tectonics and includes two main phases: an <em>Opening phase</em> (rifting and spreading) and a <em>Closing phase</em> (convergence and collision). The complete cycle repeats over hundreds of millions of years."
+  },
+  {
+    section: "The Wilson Cycle",
+    category: "wilson",
+    q: "Describe all six stages of the Wilson Cycle with modern examples for each.",
+    a: "<strong>Stage A — Embryonic:</strong> Uplift; linear rift valleys form on a continent. Example: <em>East African Rift Valley</em>. <strong>Stage B — Juvenile:</strong> Divergence (spreading); narrow seas with matching coasts. Example: <em>Red Sea</em>. <strong>Stage C — Mature:</strong> Ocean basin with full continental margins. Example: <em>Atlantic/Arctic Oceans</em>. <strong>Stage D — Declining:</strong> Convergence (subduction); island arcs and trenches around basin edge. Example: <em>Pacific Ocean</em>. <strong>Stage E — Terminal:</strong> Convergence (collision & uplift); narrow irregular seas with young mountains. Example: <em>Mediterranean Sea</em>. <strong>Stage F — Suturing:</strong> Full convergence; young to mature mountain belts. Example: <em>Himalaya Mountains</em>."
+  },
+  // ── OCEAN BASINS & CONTINENTAL MARGINS ──
+  {
+    section: "Ocean Basins & Continental Margins",
+    category: "ocean",
+    q: "What are the two types of continental margins and how do they differ?",
+    a: "<strong>Passive margins</strong> form by rifting of one continent from another. They have thick sediment accumulations, are NOT sites of plate boundaries, and both oceanic and continental crust belong to the <em>same plate</em>. Low seismic/volcanic activity. Example: <em>U.S. East Coast</em>. <strong>Active margins</strong> ARE located at plate boundaries — either subduction zones or transform zones. Characterized by frequent <em>earthquakes</em> and abundant <em>volcanism</em>. Examples: <em>Pacific Northwest</em> (subduction) and <em>central/southern California</em> (transform)."
+  },
+  {
+    section: "Ocean Basins & Continental Margins",
+    category: "ocean",
+    q: "Describe the four parts of a continental margin in order from shore to deep ocean.",
+    a: "<strong>(1) Continental Shelf</strong> — shallowest part just offshore; gentle slope (~0.1°); max water depth ~100–200 m. <strong>(2) Continental Slope</strong> — steeper (4–5°); water depth increases to ~5 km; characterized by submarine canyons; zone of sediment bypass. <strong>(3) Continental Rise</strong> — base of the slope; slope decreases rapidly; sediment accumulates via turbidity currents; large submarine fans form at canyon mouths. <strong>(4) Abyssal Plain</strong> — deepest, flattest part of the ocean floor beyond the continental rise."
+  },
+  {
+    section: "Ocean Basins & Continental Margins",
+    category: "ocean",
+    q: "What is a turbidity current and what depositional features does it create?",
+    a: "A <strong>turbidity current</strong> is a dense, fast-moving, sediment-laden flow that rushes down submarine canyons along the continental slope, driven by gravity. It transports large volumes of sediment from the shallow shelf to the deep ocean. Depositional features it creates: <strong>submarine fans</strong> (abyssal fans) deposited at the mouths of submarine canyons on the continental rise, and <strong>turbidite beds</strong> — graded sediment layers that characterize deep-sea sedimentary sequences."
+  },
+  {
+    section: "Ocean Basins & Continental Margins",
+    category: "ocean",
+    q: "What are the characteristics of oceanic crust and how does water depth relate to spreading centers?",
+    a: "Oceanic crust is <strong>underlain by basalt</strong> with an average density of <em>~3.3 g/cm³</em>. It is generated at spreading centers (mid-ocean ridges). <strong>Water depth increases with distance from spreading centers</strong> because oceanic crust cools, contracts, and becomes denser as it ages and moves away. Average depth over a spreading center: <em>~2 km</em> (parts may be emergent, e.g., Iceland). Average depth of ocean floors away from spreading centers: <em>~4 km</em>."
+  },
+  // ── SYNTHESIS & APPLICATION ──
+  {
+    section: "Synthesis & Application",
+    category: "definitions",
+    q: "How does plate tectonics explain mountain building, volcanoes, and earthquakes in a unified way?",
+    a: "<strong>Mountains</strong> form at convergent boundaries through orogeny (collision) or subduction-related magmatic arc building. <strong>Volcanoes</strong> form where subducting plates release water lowering the mantle melting point, generating magma, OR at divergent boundaries where the asthenosphere wells up. <strong>Earthquakes</strong> occur at all plate boundaries due to brittle fracturing of the lithosphere — mild/shallow at divergent, strong/deep at convergent (Benioff zone), and strong at transform boundaries. All three phenomena are <em>expressions of the same underlying plate motion driven by mantle convection</em>."
+  },
+  {
+    section: "Synthesis & Application",
+    category: "definitions",
+    q: "Why does oceanic crust subduct but continental crust does not?",
+    a: "<strong>Oceanic crust</strong> is composed primarily of <em>basalt</em> with a density of ~3.3 g/cm³ — denser than the asthenosphere — making it negatively buoyant and prone to sinking (subducting). <strong>Continental crust</strong> is composed primarily of <em>granite and similar silicic rocks</em> with a lower density (~2.7 g/cm³) — less dense than the asthenosphere — making it positively buoyant. It literally cannot sink into the denser mantle. This is why continental-continental collision produces mountain ranges rather than subduction."
+  },
+  {
+    section: "Synthesis & Application",
+    category: "definitions",
+    q: "What is the fate of subducted plates according to current hypotheses?",
+    a: "The current hypothesis suggests subducted plates may sink <em>all the way to the lower mantle</em>, accumulating near the <strong>core-mantle boundary</strong> — a region sometimes called the \"plate graveyard.\" Seismic tomography (imaging the Earth's interior using earthquake waves) has detected <em>remnants of ancient subducted plates</em> in the deep mantle. These cold, dense slabs sink through the transition zone (~670 km depth) and pool at the core-mantle boundary."
+  },
+  {
+    section: "Synthesis & Application",
+    category: "definitions",
+    q: "How do plate tectonics show that Earth's surface is constantly changing?",
+    a: "Earth's surface is in constant dynamic flux driven by <em>heat from the interior via mantle convection</em>: <strong>New crust</strong> is continuously added at divergent boundaries (mid-ocean ridges) through volcanism. <strong>Old crust</strong> is continuously destroyed at convergent boundaries (subduction zones). Simultaneously, <strong>continents collide and separate</strong>, ocean basins open and close (Wilson Cycle), mountain ranges form and erode — all on timescales of millions to hundreds of millions of years. This is why the planet we see today looks completely different from Earth of 250 million years ago."
+  }
+];
+
+// ── STATE ──
+let cardStates = {}; // 'mastered' | 'review' | null
+let currentFilter = 'all';
+let currentSearch = '';
+
+// ── BUILD UI ──
+function buildUI() {
+  const main = document.getElementById('mainContent');
+  // Clear existing cards (keep stats panel)
+  const statPanel = main.querySelector('.stats-panel');
+  main.innerHTML = '';
+  main.appendChild(statPanel);
+
+  // Group by section
+  const sections = {};
+  QA_DATA.forEach((item, i) => {
+    if (!sections[item.section]) sections[item.section] = [];
+    sections[item.section].push({ ...item, idx: i });
+  });
+
+  let sectionNum = 0;
+  Object.entries(sections).forEach(([sectionName, items]) => {
+    sectionNum++;
+
+    // Section header
+    const sh = document.createElement('div');
+    sh.className = 'section-header';
+    sh.dataset.section = sectionName;
+    sh.innerHTML = `
+      <span class="section-number">0${sectionNum}</span>
+      <span class="section-title">${sectionName}</span>
+      <div class="section-line"></div>
+    `;
+    main.appendChild(sh);
+
+    items.forEach(item => {
+      const card = document.createElement('div');
+      card.className = 'qa-card';
+      card.dataset.idx = item.idx;
+      card.dataset.category = item.category;
+      card.dataset.section = sectionName;
+
+      card.innerHTML = `
+        <div class="question-row" onclick="toggleCard(${item.idx})">
+          <span class="q-icon">Q</span>
+          <span class="question-text">${item.q}</span>
+          <span class="reveal-hint">reveal</span>
+        </div>
+        <div class="answer-wrap" id="answer-${item.idx}">
+          <div class="answer-inner">
+            <div class="answer-label">Answer</div>
+            <div class="answer-text">${item.a}</div>
+            <div class="assessment-row">
+              <span class="assess-label">How did you do?</span>
+              <button class="assess-btn got-it" onclick="markCard(${item.idx},'mastered')">✓ Got it</button>
+              <button class="assess-btn review-it" onclick="markCard(${item.idx},'review')">⚑ Review</button>
+            </div>
+          </div>
+        </div>
+      `;
+      main.appendChild(card);
+    });
+  });
+
+  updateStats();
+  applyFilter(currentFilter);
+  setTimeout(animateVisible, 100);
+}
+
+function toggleCard(idx) {
+  const wrap = document.getElementById(`answer-${idx}`);
+  const card = document.querySelector(`.qa-card[data-idx="${idx}"]`);
+  const isOpen = wrap.classList.contains('open');
+
+  wrap.classList.toggle('open');
+  card.classList.toggle('revealed', !isOpen);
+
+  // Update hint
+  const hint = card.querySelector('.reveal-hint');
+  hint.textContent = isOpen ? 'reveal' : 'close';
+}
+
+function markCard(idx, status) {
+  const prevStatus = cardStates[idx];
+  cardStates[idx] = prevStatus === status ? null : status;
+
+  const card = document.querySelector(`.qa-card[data-idx="${idx}"]`);
+  card.classList.remove('correct-mark', 'wrong-mark');
+  if (cardStates[idx] === 'mastered') card.classList.add('correct-mark');
+  if (cardStates[idx] === 'review') card.classList.add('wrong-mark');
+
+  // Update button states
+  const gotBtn = card.querySelector('.assess-btn.got-it');
+  const revBtn = card.querySelector('.assess-btn.review-it');
+  gotBtn.classList.toggle('selected', cardStates[idx] === 'mastered');
+  revBtn.classList.toggle('selected', cardStates[idx] === 'review');
+
+  updateStats();
+  updateProgress();
+
+  if (currentFilter === 'mastered' || currentFilter === 'review') {
+    applyFilter(currentFilter);
+  }
+}
+
+function updateStats() {
+  const total = QA_DATA.length;
+  const mastered = Object.values(cardStates).filter(v => v === 'mastered').length;
+  const review = Object.values(cardStates).filter(v => v === 'review').length;
+
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statMastered').textContent = mastered;
+  document.getElementById('statReview').textContent = review;
+
+  updateProgress();
+}
+
+function updateProgress() {
+  const total = QA_DATA.length;
+  const answered = Object.values(cardStates).filter(Boolean).length;
+  const mastered = Object.values(cardStates).filter(v => v === 'mastered').length;
+
+  document.getElementById('progressText').textContent = `${mastered} / ${total}`;
+  document.getElementById('progressBar').style.width = `${(mastered / total) * 100}%`;
+
+  // Quiz banner
+  const banner = document.getElementById('quizBanner');
+  if (answered > 0) {
+    banner.classList.add('show');
+    const pct = Math.round((mastered / total) * 100);
+    document.getElementById('quizScore').textContent = `${pct}% mastered`;
+  }
+}
+
+function applyFilter(filter) {
+  currentFilter = filter;
+
+  // Update button active state
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filter === filter);
+  });
+
+  const cards = document.querySelectorAll('.qa-card');
+  const headers = document.querySelectorAll('.section-header');
+
+  // Track which sections have visible cards
+  const visibleSections = new Set();
+
+  cards.forEach(card => {
+    const idx = parseInt(card.dataset.idx);
+    const category = card.dataset.category;
+    const section = card.dataset.section;
+    const state = cardStates[idx];
+    const searchTerm = currentSearch.toLowerCase();
+
+    const item = QA_DATA[idx];
+    const matchesSearch = !searchTerm ||
+      item.q.toLowerCase().includes(searchTerm) ||
+      item.a.toLowerCase().replace(/<[^>]+>/g, '').includes(searchTerm);
+
+    let matchesFilter = false;
+    if (filter === 'all') matchesFilter = true;
+    else if (filter === 'review') matchesFilter = state === 'review';
+    else if (filter === 'mastered') matchesFilter = state === 'mastered';
+    else matchesFilter = category === filter;
+
+    const show = matchesFilter && matchesSearch;
+    card.classList.toggle('hidden-card', !show);
+    if (show) visibleSections.add(section);
+  });
+
+  // Show/hide section headers
+  headers.forEach(h => {
+    const show = visibleSections.has(h.dataset.section);
+    h.classList.toggle('hidden-card', !show);
+  });
+
+  // Re-apply search highlight
+  if (currentSearch) highlightSearch(currentSearch);
+}
+
+function highlightSearch(term) {
+  if (!term) {
+    document.querySelectorAll('.question-text, .answer-text').forEach(el => {
+      el.innerHTML = el.innerHTML.replace(/<mark[^>]*>(.*?)<\/mark>/gi, '$1');
+    });
+    return;
+  }
+  // Simple highlight on question text
+  document.querySelectorAll('.qa-card:not(.hidden-card) .question-text').forEach(el => {
+    const original = el.textContent;
+    const regex = new RegExp(`(${term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+    el.innerHTML = original.replace(regex, '<mark class="highlight">$1</mark>');
+  });
+}
+
+function animateVisible() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.05, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.qa-card, .section-header').forEach(el => {
+    observer.observe(el);
+  });
+}
+
+// ── SEARCH ──
+document.getElementById('searchInput').addEventListener('input', function() {
+  currentSearch = this.value.trim();
+  applyFilter(currentFilter);
+});
+
+// ── FILTER BUTTONS ──
+document.getElementById('filterBtns').addEventListener('click', function(e) {
+  if (e.target.classList.contains('filter-btn')) {
+    applyFilter(e.target.dataset.filter);
+  }
+});
+
+// ── KEYBOARD SHORTCUTS ──
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.answer-wrap.open').forEach(w => {
+      w.classList.remove('open');
+      w.closest('.qa-card').classList.remove('revealed');
+      w.closest('.qa-card').querySelector('.reveal-hint').textContent = 'reveal';
+    });
+  }
+});
+
+// ── INIT ──
+buildUI();
+</script>
+</body>
+</html>
