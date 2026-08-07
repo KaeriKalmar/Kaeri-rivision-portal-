@@ -1,578 +1,344 @@
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Zambia Mining — Flashcard Bank</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --copper: #C0842B; --copper-light: #E8A83A; --dark: #0F1A24;
-    --card-front: #1E3348; --card-back: #162B3A; --text: #EEF2F6;
-    --text-dim: #8BA3BA; --accent: #4DAECC; --green: #4CAF7D;
-    --border: rgba(192,132,43,0.25); --red: #E57373;
-  }
-  body { font-family:'DM Sans',sans-serif; background:var(--dark); color:var(--text); min-height:100vh; overflow-x:hidden; }
-  body::before {
-    content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
-    background: radial-gradient(ellipse 80% 50% at 20% 10%,rgba(192,132,43,.08) 0%,transparent 60%),
-                radial-gradient(ellipse 60% 40% at 80% 80%,rgba(77,174,204,.06) 0%,transparent 60%);
-  }
-  .wrap { position:relative; z-index:1; max-width:900px; margin:0 auto; padding:0 24px 80px; }
-
-  /* HEADER */
-  header { padding:40px 0 20px; text-align:center; }
-  .badge { display:inline-block; background:rgba(192,132,43,.15); border:1px solid var(--copper); color:var(--copper-light); font-size:11px; font-weight:600; letter-spacing:3px; text-transform:uppercase; padding:6px 18px; border-radius:2px; margin-bottom:14px; }
-  h1 { font-family:'Playfair Display',serif; font-size:clamp(26px,5vw,44px); font-weight:900; line-height:1.1; margin-bottom:8px; }
-  h1 span { color:var(--copper); }
-  .subtitle { color:var(--text-dim); font-size:13px; }
-
-  /* TTS PANEL */
-  .tts-panel { background:linear-gradient(135deg,rgba(30,51,72,.9),rgba(20,38,55,.9)); border:1px solid rgba(192,132,43,.3); border-radius:14px; padding:18px 20px; margin:20px 0 16px; display:flex; flex-direction:column; gap:14px; }
-  .tts-row { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-  .tts-section-label { font-size:11px; font-weight:700; letter-spacing:2.5px; text-transform:uppercase; color:var(--copper); flex-shrink:0; white-space:nowrap; }
-  .tts-btn { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.06); color:var(--text); font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; flex-shrink:0; white-space:nowrap; }
-  .tts-btn:hover { background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.25); }
-  .tts-btn:disabled { opacity:.3; cursor:not-allowed; }
-  .tts-btn.rq { background:rgba(192,132,43,.18); border-color:var(--copper); color:var(--copper-light); }
-  .tts-btn.rq:hover { background:rgba(192,132,43,.32); }
-  .tts-btn.ra { background:rgba(77,174,204,.15); border-color:var(--accent); color:var(--accent); }
-  .tts-btn.ra:hover { background:rgba(77,174,204,.28); }
-  .tts-btn.rb { background:rgba(76,175,125,.15); border-color:var(--green); color:var(--green); }
-  .tts-btn.rb:hover { background:rgba(76,175,125,.28); }
-  .tts-btn.stop { background:rgba(229,115,115,.15); border-color:rgba(229,115,115,.6); color:var(--red); display:none; }
-  .tts-btn.stop:hover { background:rgba(229,115,115,.28); }
-  .tts-btn.auto.on { background:rgba(76,175,125,.2); border-color:var(--green); color:var(--green); }
-
-  /* Waveform */
-  .speaking-bar { display:flex; align-items:center; gap:10px; min-height:20px; }
-  .waveform { display:flex; align-items:center; gap:3px; height:18px; opacity:0; transition:opacity .3s; }
-  .waveform.active { opacity:1; }
-  .waveform span { display:block; width:3px; background:var(--copper-light); border-radius:2px; animation:wave .8s ease-in-out infinite; }
-  .waveform span:nth-child(1){height:6px;animation-delay:0s} .waveform span:nth-child(2){height:12px;animation-delay:.1s}
-  .waveform span:nth-child(3){height:16px;animation-delay:.2s} .waveform span:nth-child(4){height:10px;animation-delay:.3s}
-  .waveform span:nth-child(5){height:14px;animation-delay:.15s} .waveform span:nth-child(6){height:8px;animation-delay:.25s}
-  @keyframes wave { 0%,100%{transform:scaleY(.5);opacity:.7} 50%{transform:scaleY(1);opacity:1} }
-  .speak-label { font-size:12px; color:var(--text-dim); font-style:italic; }
-  .speak-label.on { color:var(--copper-light); }
-
-  /* Voice controls */
-  .tts-controls { display:flex; align-items:center; gap:14px; flex-wrap:wrap; }
-  .ctrl-grp { display:flex; align-items:center; gap:7px; }
-  .ctrl-grp label { font-size:11px; color:var(--text-dim); font-weight:500; white-space:nowrap; }
-  .tts-slider { -webkit-appearance:none; appearance:none; width:80px; height:4px; background:rgba(255,255,255,.15); border-radius:2px; outline:none; cursor:pointer; }
-  .tts-slider::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:var(--copper); cursor:pointer; }
-  .tts-select { background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.15); color:var(--text); font-family:'DM Sans',sans-serif; font-size:11px; padding:5px 8px; border-radius:6px; cursor:pointer; outline:none; max-width:140px; }
-  .tts-select option { background:#1A2B3A; }
-  .ctrl-val { font-size:11px; color:var(--copper-light); min-width:30px; font-weight:600; }
-  .tts-warn { display:none; font-size:12px; color:var(--red); padding:8px 12px; background:rgba(229,115,115,.1); border:1px solid rgba(229,115,115,.3); border-radius:6px; }
-
-  /* FILTER */
-  .filter-scroll { display:flex; gap:8px; overflow-x:auto; padding:4px 0 12px; scrollbar-width:none; }
-  .filter-scroll::-webkit-scrollbar { display:none; }
-  .filter-btn { flex-shrink:0; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:var(--text-dim); font-family:'DM Sans',sans-serif; font-size:12px; font-weight:500; padding:7px 14px; border-radius:20px; cursor:pointer; transition:all .2s; white-space:nowrap; }
-  .filter-btn:hover { border-color:var(--copper); color:var(--copper-light); }
-  .filter-btn.active { background:rgba(192,132,43,.2); border-color:var(--copper); color:var(--copper-light); }
-
-  /* SCORES */
-  .score-strip { display:flex; gap:16px; justify-content:center; font-size:13px; color:var(--text-dim); margin-bottom:14px; }
-  .score-strip span { display:flex; align-items:center; gap:5px; }
-  .dot { width:8px; height:8px; border-radius:50%; }
-  .dg { background:var(--green); } .dc { background:var(--copper); } .dd { background:rgba(255,255,255,.15); }
-
-  /* PROGRESS */
-  .prog-row { display:flex; justify-content:space-between; font-size:12px; color:var(--text-dim); margin-bottom:6px; }
-  .prog-row strong { color:var(--copper-light); }
-  .prog-wrap { background:rgba(255,255,255,.06); border-radius:4px; height:4px; overflow:hidden; margin-bottom:14px; }
-  .prog-bar { height:100%; background:linear-gradient(90deg,var(--copper),var(--copper-light)); border-radius:4px; transition:width .4s; }
-
-  /* CARD */
-  .card-scene { perspective:1200px; width:100%; height:300px; margin:0 0 18px; cursor:pointer; }
-  .card { width:100%; height:100%; position:relative; transform-style:preserve-3d; transition:transform .55s cubic-bezier(.4,0,.2,1); }
-  .card.flipped { transform:rotateY(180deg); }
-  .card-face { position:absolute; inset:0; backface-visibility:hidden; -webkit-backface-visibility:hidden; border-radius:16px; padding:26px 34px; display:flex; flex-direction:column; justify-content:space-between; border:1px solid var(--border); overflow:hidden; }
-  .card-front { background:linear-gradient(135deg,#1E3348,#162538); box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(192,132,43,.2); }
-  .card-back { background:linear-gradient(135deg,#162B3A,#0F2030); transform:rotateY(180deg); box-shadow:0 20px 60px rgba(0,0,0,.5),inset 0 1px 0 rgba(77,174,204,.2); }
-  .card-face::before { content:''; position:absolute; top:0; right:0; width:120px; height:120px; background:radial-gradient(circle at top right,rgba(192,132,43,.1),transparent 70%); border-radius:0 16px 0 0; }
-  .card-back::before { background:radial-gradient(circle at top right,rgba(77,174,204,.1),transparent 70%); }
-  .card-lbl { font-size:10px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:var(--copper); display:flex; align-items:center; gap:8px; }
-  .card-back .card-lbl { color:var(--accent); }
-  .card-lbl::after { content:''; flex:1; height:1px; background:currentColor; opacity:.3; }
-  .card-sec { font-size:11px; color:var(--text-dim); margin-top:4px; opacity:.7; }
-  .card-body { flex:1; display:flex; align-items:center; padding:14px 0; }
-  .q-text { font-family:'Playfair Display',serif; font-size:clamp(16px,2.4vw,21px); font-weight:700; line-height:1.5; }
-  .a-text { font-size:clamp(13px,1.7vw,15px); line-height:1.75; }
-  .card-foot { display:flex; align-items:center; justify-content:space-between; }
-  .card-num { font-size:12px; color:var(--text-dim); }
-  .flip-hint { font-size:11px; color:var(--text-dim); display:flex; align-items:center; gap:5px; opacity:.55; }
-
-  /* CONTROLS */
-  .controls { display:flex; gap:10px; align-items:center; justify-content:center; margin-bottom:10px; flex-wrap:wrap; }
-  .btn { background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.12); color:var(--text); font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; padding:10px 18px; border-radius:8px; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:7px; }
-  .btn:hover { background:rgba(255,255,255,.1); border-color:rgba(255,255,255,.25); }
-  .btn.primary { background:rgba(192,132,43,.2); border-color:var(--copper); color:var(--copper-light); }
-  .btn.primary:hover { background:rgba(192,132,43,.35); }
-  .btn.flip-btn { background:linear-gradient(135deg,rgba(192,132,43,.25),rgba(192,132,43,.1)); border-color:var(--copper); color:var(--copper-light); padding:11px 26px; font-size:14px; }
-  .btn:disabled { opacity:.3; cursor:not-allowed; }
-
-  /* RATING */
-  .rating-row { display:flex; gap:10px; justify-content:center; margin-bottom:18px; opacity:0; transition:opacity .3s; pointer-events:none; }
-  .rating-row.show { opacity:1; pointer-events:all; }
-  .r-lbl { font-size:12px; color:var(--text-dim); align-self:center; }
-  .r-btn { padding:8px 18px; border-radius:6px; border:1px solid; font-family:'DM Sans',sans-serif; font-size:12px; font-weight:600; cursor:pointer; transition:all .2s; }
-  .r-got { background:rgba(76,175,125,.15); border-color:var(--green); color:var(--green); }
-  .r-got:hover { background:rgba(76,175,125,.3); }
-  .r-rev { background:rgba(192,132,43,.15); border-color:var(--copper); color:var(--copper-light); }
-  .r-rev:hover { background:rgba(192,132,43,.3); }
-
-  /* COMPLETE */
-  .complete { display:none; text-align:center; padding:50px 20px; }
-  .complete.show { display:block; }
-  .complete h2 { font-family:'Playfair Display',serif; font-size:30px; color:var(--copper); margin:12px 0 8px; }
-  .complete p { color:var(--text-dim); font-size:14px; margin-bottom:22px; }
-  .stats { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:26px; }
-  .stat { background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.1); border-radius:12px; padding:18px 28px; }
-  .sn { font-family:'Playfair Display',serif; font-size:34px; font-weight:900; color:var(--copper); }
-  .sl { font-size:12px; color:var(--text-dim); margin-top:4px; }
-
-  /* KBD */
-  .kbd-hint { text-align:center; font-size:11px; color:var(--text-dim); opacity:.4; margin-top:4px; }
-  kbd { background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.15); border-radius:3px; padding:1px 6px; font-size:11px; }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kaeri Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <style>
+    /* ── EXACT ORIGINAL ADMIN STYLES ── */
+    :root { --bg-primary: #0d1b2a; --bg-secondary: #1b263b; --text-primary: #e0e6ed; --accent-teal: #72efdd; --action-blue: #007bff; --border-color: #3e506e; --success: #28a745; --error: #dc3545; }
+    body { background-color: var(--bg-primary); color: var(--text-primary); font-family: 'Roboto', sans-serif; margin: 0; }
+    .header { background-color: var(--bg-secondary); padding: 15px 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+    .brand { font-weight: 700; color: var(--accent-teal); font-size: 1.1rem; }
+    .refresh-btn { background: transparent; border: 1px solid var(--border-color); color: var(--text-primary); padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+    .refresh-btn:hover { border-color: var(--accent-teal); color: var(--accent-teal); }
+    .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+    .card { background-color: var(--bg-secondary); border-radius: 12px; overflow: hidden; border: 1px solid var(--border-color); transition: transform 0.2s; }
+    .card:hover { transform: translateY(-3px); border-color: var(--action-blue); }
+    .proof-img { width: 100%; height: 150px; object-fit: cover; background-color: #000; cursor: zoom-in; }
+    .card-body { padding: 15px; }
+    .card-title { font-size: 1.1rem; font-weight: 700; color: var(--accent-teal); margin: 0 0 10px 0; }
+    .info-row { font-size: 0.9rem; margin-bottom: 6px; color: #b0b8c3; }
+    .info-label { color: var(--action-blue); font-weight: 500; margin-right: 5px; }
+    .actions { display: flex; gap: 10px; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); }
+    .btn { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; color: white; transition: 0.2s; }
+    .btn-approve { background-color: var(--success); }
+    .btn-approve:hover { background-color: #218838; }
+    .btn-reject { background-color: var(--error); }
+    .btn-reject:hover { background-color: #c82333; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+    .skeleton-card { height: 320px; background: var(--bg-secondary); border-radius: 12px; padding: 15px; border: 1px solid var(--border-color); }
+    .sk-img { height: 150px; background: #2a3a4a; margin-bottom: 15px; border-radius: 8px; animation: pulse 1.5s infinite; }
+    .sk-line { height: 16px; background: #2a3a4a; margin-bottom: 8px; border-radius: 4px; animation: pulse 1.5s infinite; }
+    .sk-line.short { width: 60%; }
+    @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 1; } 100% { opacity: 0.5; } }
+    .empty-state { text-align: center; padding: 50px; color: var(--border-color); }
+    .empty-state i { font-size: 3rem; margin-bottom: 15px; display: block; }
+    .queue-count { background: var(--action-blue); padding: 2px 10px; border-radius: 10px; font-size: 0.8rem; font-weight: 700; }
+  </style>
 </head>
 <body>
-<div class="wrap">
 
-<header>
-  <div class="badge">Study Tool</div>
-  <h1>Zambia Mining<br><span>Flashcard Bank</span></h1>
-  <div class="subtitle">51 cards · Mwape, Ndhlovu &amp; Chileshe · Copperbelt University</div>
-</header>
-
-<!-- TTS PANEL -->
-<div class="tts-panel">
-  <div class="tts-row">
-    <span class="tts-section-label">🔊 Read Aloud</span>
-    <button class="tts-btn rq" id="btnRQ" onclick="readQ()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02z"/></svg>
-      Read Question
-    </button>
-    <button class="tts-btn ra" id="btnRA" onclick="readA()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm10.5-4.07v2.02c2.01.73 3.45 2.64 3.45 4.91 0 2.27-1.44 4.18-3.45 4.91v2.02c3.13-.77 5.45-3.59 5.45-6.93s-2.32-6.16-5.45-6.93z"/></svg>
-      Read Answer
-    </button>
-    <button class="tts-btn rb" id="btnRB" onclick="readBoth()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM19 12c0-3.18-1.83-5.93-4.5-7.32v14.64C17.17 17.93 19 15.18 19 12z"/></svg>
-      Read Both
-    </button>
-    <button class="tts-btn stop" id="btnStop" onclick="stopTTS()">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h12v12H6z"/></svg>
-      Stop
-    </button>
-    <button class="tts-btn auto" id="btnAuto" onclick="toggleAuto()" title="Auto-read question &amp; answer on each card">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg>
-      Auto-read
-    </button>
+  <div class="header">
+    <div class="brand"><i class="fas fa-shield-alt"></i> Kaeri Admin</div>
+    <button class="refresh-btn" onclick="loadDashboard()"><i class="fas fa-sync"></i> Refresh</button>
   </div>
 
-  <!-- Waveform + status -->
-  <div class="speaking-bar">
-    <div class="waveform" id="waveform">
-      <span></span><span></span><span></span><span></span><span></span><span></span>
+  <div class="container">
+    <div style="margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-weight: 500;">Verification Queue</span>
+      <span class="queue-count" id="count">0</span>
     </div>
-    <span class="speak-label" id="speakLbl">Ready to read</span>
-  </div>
 
-  <!-- Controls row -->
-  <div class="tts-controls">
-    <div class="ctrl-grp">
-      <label>Voice</label>
-      <select class="tts-select" id="voiceSel" onchange="onVoiceChange()"></select>
+    <div id="loader" class="grid">
+      <div class="skeleton-card"><div class="sk-img"></div><div class="sk-line"></div><div class="sk-line short"></div></div>
+      <div class="skeleton-card"><div class="sk-img"></div><div class="sk-line"></div><div class="sk-line short"></div></div>
+      <div class="skeleton-card"><div class="sk-img"></div><div class="sk-line"></div><div class="sk-line short"></div></div>
     </div>
-    <div class="ctrl-grp">
-      <label>Speed</label>
-      <input type="range" class="tts-slider" id="rateSlider" min="0.5" max="2" step="0.05" value="0.95" oninput="onSlider('rate')">
-      <span class="ctrl-val" id="rateVal">0.95×</span>
-    </div>
-    <div class="ctrl-grp">
-      <label>Pitch</label>
-      <input type="range" class="tts-slider" id="pitchSlider" min="0.5" max="2" step="0.05" value="1" oninput="onSlider('pitch')">
-      <span class="ctrl-val" id="pitchVal">1.0×</span>
-    </div>
-    <div class="ctrl-grp">
-      <label>Vol</label>
-      <input type="range" class="tts-slider" id="volSlider" min="0" max="1" step="0.05" value="1" oninput="onSlider('vol')">
-      <span class="ctrl-val" id="volVal">100%</span>
+
+    <div id="grid" class="grid" style="display: none;"></div>
+
+    <div id="empty" class="empty-state" style="display: none;">
+      <i class="fas fa-check-circle"></i>
+      <p>All caught up! No pending payments.</p>
     </div>
   </div>
 
-  <div class="tts-warn" id="ttsWarn">⚠ Speech not supported in this browser. Try Chrome, Edge, or Safari.</div>
-</div>
+  <script>
+    (function() {
+      'use strict';
 
-<!-- FILTER -->
-<div class="filter-scroll" id="filterRow"></div>
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // CONFIG – Your live production API URL (UPDATED)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      const API_URL = 'https://script.google.com/macros/s/AKfycbw-T4cwp1iIrbHdRMCXJhyLXRh3T4geXDuLEdMzel9B7k0zjmR0wxV6fZCUxPf7PJ6IfQ/exec';
 
-<!-- SCORE STRIP -->
-<div class="score-strip">
-  <span><span class="dot dg"></span>Got it: <strong id="sGot">0</strong></span>
-  <span><span class="dot dc"></span>Review: <strong id="sRev">0</strong></span>
-  <span><span class="dot dd"></span>Unseen: <strong id="sUnseen">51</strong></span>
-</div>
+      let isProcessing = false;
 
-<!-- PROGRESS -->
-<div class="prog-row">
-  <span>Card <strong id="cCur">1</strong> of <strong id="cTot">51</strong></span>
-  <strong id="pctTxt">0%</strong>
-</div>
-<div class="prog-wrap"><div class="prog-bar" id="progBar" style="width:0%"></div></div>
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // API CALLER (with retry & timeout)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      function callApi(action, payload = {}, retries = 2) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30000);
 
-<!-- CARD -->
-<div class="card-scene" id="cardScene" onclick="flipCard()">
-  <div class="card" id="theCard">
-    <div class="card-face card-front">
-      <div><div class="card-lbl">Question</div><div class="card-sec" id="cSecF"></div></div>
-      <div class="card-body"><div class="q-text" id="qText"></div></div>
-      <div class="card-foot">
-        <span class="card-num" id="cNumF"></span>
-        <span class="flip-hint">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
-          Click to flip
-        </span>
-      </div>
-    </div>
-    <div class="card-face card-back">
-      <div><div class="card-lbl">Answer</div><div class="card-sec" id="cSecB"></div></div>
-      <div class="card-body"><div class="a-text" id="aText"></div></div>
-      <div class="card-foot">
-        <span class="card-num" id="cNumB"></span>
-        <span class="flip-hint">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13"><path d="M1 4v6h6M23 20v-6h-6"/><path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"/></svg>
-          Click to flip back
-        </span>
-      </div>
-    </div>
-  </div>
-</div>
+        return fetch(API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ action, ...payload }),
+          signal: controller.signal
+        })
+        .then(res => {
+          clearTimeout(timeout);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
+          return res.json();
+        })
+        .catch(err => {
+          clearTimeout(timeout);
+          if (retries > 0) {
+            return new Promise(resolve => setTimeout(resolve, 1000))
+              .then(() => callApi(action, payload, retries - 1));
+          }
+          throw err;
+        });
+      }
 
-<!-- RATING -->
-<div class="rating-row" id="ratingRow">
-  <span class="r-lbl">How did you do?</span>
-  <button class="r-btn r-got" onclick="rate('got')">✓ Got it</button>
-  <button class="r-btn r-rev" onclick="rate('review')">↺ Review</button>
-</div>
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // NOTIFICATION (SweetAlert wrapper)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      function showAlert(icon, title, text) {
+        return Swal.fire({
+          icon,
+          title,
+          text,
+          background: '#1b263b',
+          color: '#e0e6ed',
+          confirmButtonColor: '#007bff',
+          confirmButtonText: 'OK',
+          backdrop: 'rgba(13,27,42,0.85)'
+        });
+      }
 
-<!-- CONTROLS -->
-<div class="controls">
-  <button class="btn" id="prevBtn" onclick="nav(-1)">← Prev</button>
-  <button class="btn flip-btn" onclick="flipCard()">Flip Card</button>
-  <button class="btn" id="nextBtn" onclick="nav(1)">Next →</button>
-</div>
-<div class="controls" style="margin-top:-2px">
-  <button class="btn primary" onclick="shuffleCards()">⇄ Shuffle</button>
-  <button class="btn primary" onclick="resetAll()">↺ Reset All</button>
-</div>
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // LOAD DASHBOARD
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      window.loadDashboard = function() {
+        const loader = document.getElementById('loader');
+        const grid = document.getElementById('grid');
+        const empty = document.getElementById('empty');
 
-<div class="kbd-hint">
-  <kbd>Space</kbd> flip &nbsp;·&nbsp; <kbd>←</kbd><kbd>→</kbd> navigate &nbsp;·&nbsp;
-  <kbd>G</kbd> got it &nbsp;·&nbsp; <kbd>R</kbd> review &nbsp;·&nbsp;
-  <kbd>Q</kbd> read question &nbsp;·&nbsp; <kbd>A</kbd> read answer &nbsp;·&nbsp; <kbd>S</kbd> stop
-</div>
+        loader.style.display = 'grid';
+        grid.style.display = 'none';
+        empty.style.display = 'none';
 
-<!-- COMPLETE -->
-<div class="complete" id="completeScreen">
-  <div style="font-size:58px">🏆</div>
-  <h2>Deck Complete!</h2>
-  <p>You've worked through all cards in this set.</p>
-  <div class="stats">
-    <div class="stat"><div class="sn" id="fGot">0</div><div class="sl">Got It</div></div>
-    <div class="stat"><div class="sn" id="fRev">0</div><div class="sl">For Review</div></div>
-    <div class="stat"><div class="sn" id="fPct">0%</div><div class="sl">Score</div></div>
-  </div>
-  <button class="btn primary" onclick="resetAll()" style="margin:0 auto;font-size:15px;padding:12px 36px;">Start Over</button>
-</div>
+        callApi('getPendingVerifications')
+          .then(res => {
+            if (!res.success) {
+              throw new Error(res.message || 'Failed to fetch queue');
+            }
+            render(res.data || []);
+          })
+          .catch(err => {
+            console.error('[LOAD ERROR]', err.message);
+            render([]);
+            showAlert('error', 'Connection Error', 'Could not load the verification queue. Please refresh.');
+          });
+      };
 
-</div><!-- /wrap -->
+      function render(data) {
+        const loader = document.getElementById('loader');
+        const grid = document.getElementById('grid');
+        const empty = document.getElementById('empty');
+        const count = document.getElementById('count');
 
-<script>
-// ── CARD DATA ──────────────────────────────────────────────────────────────
-const ALL = [
-  {s:"S1 — Introduction",q:"When did mining begin in the region known today as Zambia?",a:"As far back as the 1800s. Traditional and subsistence in nature, confined to surface outcrop deposits."},
-  {s:"S1 — Introduction",q:"What has been the primary economic pillar of Zambia historically?",a:"Copper — the fundamental growth driving pillar of the Zambian economy since its earliest beginnings."},
-  {s:"S1 — Introduction",q:"Who marked the beginning of modern mining in Zambia?",a:"The British South Africa Company, led by Cecil Rhodes, who invaded Northern Rhodesia."},
-  {s:"S1 — Introduction",q:"What are the three chronological phases of Zambia's mining industry?",a:"Past: beginning through to nationalisation. Present: privatisation from the late 1990s. Future: potential minerals sustaining growth going forward."},
-  {s:"S1 — Introduction",q:"What factors pushed the government to privatise the mines?",a:"Declining copper prices, ZCCM's poor financial performance, and pressure from the World Bank and IMF."},
-  {s:"S2 — Antiquity",q:"Which is the only Zambian mine discovered without local knowledge?",a:"Chibuluma mine — the only deposit found without information passed on from local people."},
-  {s:"S2 — Antiquity",q:"What were Baluba crosses and what were they used for?",a:"Copper currency made by pouring molten copper into sand molds. Used to trade goats, cattle, fabrics, guns, slaves, and to bind marriages. Value held until the 1950s."},
-  {s:"S2 — Antiquity",q:"How did European settlers typically locate copper deposits?",a:"With assistance from local scouts who had prior knowledge of copper mineral locations. Chibuluma is the sole exception."},
-  {s:"S2 — Antiquity",q:"How widespread were pre-colonial mining activities?",a:"Widespread across the Copperbelt and other areas, though carried out on a small scale."},
-  {s:"S3 — Mine Development",q:"Where were the ancient surface copper workings known before colonial exploration?",a:"Kansanshi near Solwezi, Bwana Mkubwa, and Luanshya — areas that later became the Copperbelt."},
-  {s:"S3 — Mine Development",q:"Who conducted the key 1895 to 1896 explorations and what did they find?",a:"Frederick Russell Burnham from the BSA Company and Tom Davey from the Bechuanaland Exploration Company. They found evidence of African copper smelting and Africans wearing copper bracelets."},
-  {s:"S3 — Mine Development",q:"Why was copper only initially worked at Bwana Mkubwa?",a:"Surface ores in Northern Rhodesia were of poorer quality than the DRC. Rich copper sulphide ores were not discovered until 1924."},
-  {s:"S3 — Mine Development",q:"What was the Rhodesian Selection Trust and who founded it?",a:"A holding company formed in 1928 by Alfred Chester Beatty, an Irish-American mining magnate. It operated Luanshya 1928, Mufulira 1933, Chibuluma 1955, and Kalengwa 1969."},
-  {s:"S3 — Mine Development",q:"What mines did Anglo American Corporation operate in Northern Rhodesia?",a:"Broken Hill lead-zinc 1905, Bwana Mkubwa copper 1908, Rhokana copper 1931, Nchanga copper 1937, and Bancroft copper 1957."},
-  {s:"S3 — Mine Development",q:"What was Zambia's copper output share and GDP status by 1964?",a:"Over 12% of global copper output. One of Africa's highest GDPs — higher than Ghana, Kenya, and South Korea. Per capita income was US$294 versus South Korea's US$106."},
-  {s:"S3 — Mine Development",q:"What was peak copper production and when was it reached?",a:"720,000 tonnes in 1969 — the same year nationalisation discussions accelerated."},
-  {s:"S3 — Mine Development",q:"Why did investment decline between 1964 and 1969?",a:"Mineral rights transferred to government post-independence. Mine owners now bore the full cost of royalties they previously did not view as real costs. Negotiations to reduce royalties failed."},
-  {s:"S4 — Nationalisation",q:"What was the Matero Declaration?",a:"The 1969 announcement by which the Zambian government acquired 51% shareholding in RST and AAC — the formal start of nationalisation."},
-  {s:"S4 — Nationalisation",q:"What did RST become and which mines did it include post-nationalisation?",a:"Roan Consolidated Copper Mines, comprising Mufulira, Luanshya, Chibuluma, Chambishi, Kalengwa, and the Ndola Copper Refinery."},
-  {s:"S4 — Nationalisation",q:"What did AAC's Zambian arm become and which mines did it control?",a:"Nchanga Consolidated Copper Mines, responsible for Broken Hill, Rhokana, Nchanga, and Konkola mines."},
-  {s:"S4 — Nationalisation",q:"When was ZCCM formed and what went wrong?",a:"1982 — merger of RCM and NCCM. ZCCM financed national programs at the expense of operations. No technology upgrades, rising costs, declining output, and falling employment followed."},
-  {s:"S4 — Nationalisation",q:"What was copper production by the year 2000?",a:"Approximately 250,000 tonnes — down from 720,000 in 1969. A 24-year decline under state ownership."},
-  {s:"S4 — Nationalisation",q:"What external factors worsened nationalised mines' performance?",a:"Low copper prices, rising oil costs, no domestic oil production, and deeper mining with leaner and more complex ore grades receiving no technological investment."},
-  {s:"S5 — Privatisation",q:"When did privatisation begin and end?",a:"Started 1996, completed 2000. The government that promised it came to power in 1991."},
-  {s:"S5 — Privatisation",q:"Which mines were privatised first and to whom?",a:"Luanshya to Binani in 1997 and Kansanshi to Cyprus Amax in 1997 — the smaller mines went first."},
-  {s:"S5 — Privatisation",q:"What were the two major privatised units in 2000?",a:"First, Konkola Copper Mines sold to a consortium led by AAC. Second, Mopani Copper Mines sold to Glencore as major shareholder."},
-  {s:"S5 — Privatisation",q:"What happened to KCM after AAC returned it in 2002?",a:"The government offered it to Vedanta of India in 2004, which invested massively and revived operations."},
-  {s:"S5 — Privatisation",q:"What was copper production by 2016 after privatisation?",a:"774,000 tonnes — driven by new private investment in machinery, methods, processing, and greenfield projects."},
-  {s:"S5 — Privatisation",q:"What was significant about the North-western Province greenfield mines?",a:"Kansanshi, Kalumbila, and Lumwana brought new technology capable of processing large quantities of low-grade copper ores at very low cost."},
-  {s:"S6 — Future & Resources",q:"What percentage of global copper reserves are in Zambia?",a:"6% of worldwide known copper reserves."},
-  {s:"S6 — Future & Resources",q:"What proportion of Zambia remains geologically unexplored?",a:"40% — meaning actual reserves may significantly exceed currently known figures."},
-  {s:"S6 — Future & Resources",q:"What is Zambia's African record regarding copper?",a:"Zambia holds the record for the largest known copper resources in Africa."},
-  {s:"S6 — Future & Resources",q:"List all minerals found in Zambia.",a:"Copper and cobalt, manganese, iron, aquamarine, gold, emerald, zinc and lead, nickel, coal, tin, uranium, amethyst, and potential oil, gas, and diamonds."},
-  {s:"S6 — Future & Resources",q:"Where are primary gold deposits found in Zambia?",a:"Central: Lusaka, Mumbwa, Mkushi. Eastern: Nyimba. North-western: Solwezi and Kasempa. All associated with hydrothermal vein deposits."},
-  {s:"S6 — Future & Resources",q:"Where is tin found in Zambia?",a:"Mainly Southern Province from the Choma Tin Belt. Also Mporokoso in Northern Province, Lundazi and Petauke in Eastern, Serenje and Mumbwa in Central, Kasempa in North-western, and Mazabuka in Southern Province."},
-  {s:"S6 — Future & Resources",q:"Where are manganese deposits found and what is manganese used for?",a:"Eastern, Luapula, and Central Provinces — exploited on a small scale. Used in manufacturing steel and batteries."},
-  {s:"S6 — Future & Resources",q:"Where are Zambia's gem-quality emerald deposits located?",a:"Ndola Rural in Copperbelt Province is the most well-known. Also north-western Province south of Solwezi Dome, and Old Mkushi. Emerald is the main gemstone, sometimes with green tourmaline."},
-  {s:"S6 — Future & Resources",q:"Where are uranium deposits in Zambia?",a:"Associated with copper mineralisation in the Copperbelt, Basement domes of North-western Zambia, and Karoo sandstones of the Mid-Zambezi."},
-  {s:"S6 — Future & Resources",q:"When did coal production begin and from which mine?",a:"Since 1967 from Maamba mine near Lake Kariba. Deposits are in the Lower-Karoo Gwembe Formation."},
-  {s:"S6 — Future & Resources",q:"What is the petroleum outlook for Zambia?",a:"Largely unexplored. Western, Mid-Zambezi, and Eastern Zambia show favourable geology. Microbial Prospecting techniques indicate oil and gas potential, confirmed by Nyambe and Phiri in 2010."},
-  {s:"S7 — Policy & Taxation",q:"What caused the production decline at the start of 2015?",a:"Low copper prices combined with uncertainty from the destabilising Mineral Royalty Taxation regime of 2015."},
-  {s:"S7 — Policy & Taxation",q:"What did the 2016 Mines and Mineral Development Act achieve?",a:"Corrected errors of the 2015 Act. Committed to a stable, predictable, consistent, and transparent tax regime — welcomed by investors."},
-  {s:"S7 — Policy & Taxation",q:"What does value addition and industrialisation mean for Zambia?",a:"Producing mining inputs such as drills, explosives, and loaders domestically, and manufacturing finished products from minerals such as copper cables and rings, to retain more economic value in-country."},
-  {s:"S7 — Policy & Taxation",q:"What five areas must be addressed for Zambia to achieve its mining potential?",a:"First, exploration to reduce investor uncertainty. Second, reliable power supply. Third, local value addition and industry. Fourth, better transport infrastructure. Fifth, a stable and transparent regulatory and tax environment."},
-  {s:"S7 — Policy & Taxation",q:"What was the key lesson from nationalisation regarding mines' core business?",a:"Mines lost focus by financing national development instead of reinvesting in operations. Continuous technological reinvestment drives productivity — not social spending."},
-  {s:"S7 — Policy & Taxation",q:"What type of mining projects should government encourage?",a:"Low-cost mining operations capable of withstanding the constant shocks of copper price fluctuations."},
-  {s:"S8 — Applied/Data",q:"Trace the trajectory of Zambian copper production from 1969 to 2016.",a:"Peak of 720,000 tonnes in 1969, dropping to about 700,000 by 1973 at completion of nationalisation, then declining to 250,000 tonnes by 2000 under ZCCM, then recovering to 774,000 tonnes by 2016 under private ownership."},
-  {s:"S8 — Applied/Data",q:"What does the GDP chart reveal about Zambia versus other British colonies?",a:"In 1960, Zambia's GDP ratio to the UK was about 16%, among the highest. After nationalisation post-1973 it fell sharply and persistently, converging near the bottom by 2006, demonstrating the severe economic cost of the nationalisation era."},
-  {s:"S8 — Applied/Data",q:"What does the copper production chart reveal about ownership and output?",a:"A clear three-phase pattern: high output under private ownership, sustained decline under national ownership, then sharp recovery after re-privatisation. This proves a positive correlation between private investment and production."},
-  {s:"S8 — Applied/Data",q:"How did Zambia's 1965 per capita income compare to South Korea?",a:"Zambia had US$294 versus South Korea's US$106 — nearly three times richer per capita. South Korea's subsequent rise while Zambia declined illustrates the cost of policy missteps."},
-  {s:"S8 — Applied/Data",q:"What is Zambia's current and target copper production figure?",a:"Currently around 800,000 tonnes per annum, headed towards 1,000,000 tonnes per annum in coming years."},
-  {s:"S9 — Critical Thinking",q:"Critically evaluate the impact of nationalisation on Zambia's mining industry.",a:"Aim was to redirect revenue to national development. But ZCCM financed national programs at the expense of operations. No technology upgrades, soaring costs, and output fell from 720,000 to 250,000 tonnes over 24 years. Key lesson: nationalisation without reinvestment and expertise causes productive collapse."},
-  {s:"S9 — Critical Thinking",q:"Assess whether Zambia's future in mining is optimistic.",a:"Broadly optimistic: 6% of global copper reserves, largest in Africa, 40% unexplored, diverse minerals including gold, emeralds, uranium, coal, and oil potential. Output hit 774,000 tonnes in 2016. However power unreliability, tax instability, infrastructure gaps, and copper overdependence remain ongoing risks."},
-  {s:"S9 — Critical Thinking",q:"Why is reducing Zambia's copper dependency important and what alternatives exist?",a:"Copper is volatile — the 2015 price crash triggered production decline. Alternatives include gold, emeralds, coal, uranium, and oil and gas. Value addition through manufacturing copper products and local mining equipment retains more economic value domestically."},
-  {s:"S9 — Critical Thinking",q:"What structural policy conditions are required to attract sustained mining investment?",a:"Per UK Aid 2011, all five are necessary: detailed geological exploration, reliable electricity, local industrial supply capacity, improved transport and border efficiency, and a stable, predictable, transparent tax and regulatory regime."},
-];
+        loader.style.display = 'none';
+        count.innerText = data.length;
 
-// ── TTS ───────────────────────────────────────────────────────────────────
-const synth = window.speechSynthesis;
-let voices = [], selVoice = null, autoOn = false;
+        if (data.length === 0) {
+          empty.style.display = 'block';
+          grid.style.display = 'none';
+          return;
+        }
 
-function initTTS() {
-  if (!synth) { document.getElementById('ttsWarn').style.display='block'; return; }
-  loadVoices();
-  if (speechSynthesis.onvoiceschanged !== undefined) speechSynthesis.onvoiceschanged = loadVoices;
-}
+        empty.style.display = 'none';
+        grid.style.display = 'grid';
+        grid.innerHTML = '';
 
-function loadVoices() {
-  voices = synth.getVoices();
-  const sel = document.getElementById('voiceSel');
-  sel.innerHTML = '';
-  const eng = voices.filter(v => v.lang.startsWith('en'));
-  const list = eng.length ? eng : voices;
-  list.forEach(v => {
-    const o = document.createElement('option');
-    o.value = voices.indexOf(v);
-    o.textContent = v.name + ' (' + v.lang + ')';
-    sel.appendChild(o);
-  });
-  const pref = list.find(v => /google|samantha|daniel|karen/i.test(v.name)) || list[0];
-  if (pref) { selVoice = pref; sel.value = voices.indexOf(pref); }
-}
+        data.forEach(item => {
+          const thumb = item.proofThumb || 'https://via.placeholder.com/400x200/0d1b2a/72efdd?text=No+Proof';
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <a href="${item.proofUrl || '#'}" target="_blank" rel="noopener">
+              <img src="${thumb}" class="proof-img" alt="Payment Proof">
+            </a>
+            <div class="card-body">
+              <div class="card-title">${escapeHtml(item.course)} ${escapeHtml(item.term)}</div>
+              <div class="info-row"><span class="info-label">Name:</span> ${escapeHtml(item.studentName)}</div>
+              <div class="info-row"><span class="info-label">Ref:</span> ${escapeHtml(item.transRef)}</div>
+              <div class="info-row"><span class="info-label">Amt:</span> K${item.amount}</div>
+              <div class="actions">
+                <button class="btn btn-reject" data-row="${item.rowIndex}">Reject</button>
+                <button class="btn btn-approve" data-row="${item.rowIndex}" data-course="${escapeHtml(item.course)}">Approve</button>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        });
 
-function onVoiceChange() {
-  selVoice = voices[parseInt(document.getElementById('voiceSel').value)] || null;
-}
+        // Attach event listeners
+        document.querySelectorAll('.btn-approve').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const rowIndex = parseInt(this.dataset.row);
+            const course = this.dataset.course;
+            handleApprove(rowIndex, course);
+          });
+        });
 
-function onSlider(type) {
-  const v = parseFloat(document.getElementById(type+'Slider').value);
-  const el = document.getElementById(type+'Val');
-  if (type === 'vol') el.textContent = Math.round(v*100)+'%';
-  else el.textContent = v.toFixed(type==='rate'?2:1)+'×';
-}
+        document.querySelectorAll('.btn-reject').forEach(btn => {
+          btn.addEventListener('click', function() {
+            const rowIndex = parseInt(this.dataset.row);
+            handleReject(rowIndex);
+          });
+        });
+      }
 
-function speak(text, onEnd) {
-  if (!synth) return;
-  synth.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  if (selVoice) u.voice = selVoice;
-  u.rate  = parseFloat(document.getElementById('rateSlider').value);
-  u.pitch = parseFloat(document.getElementById('pitchSlider').value);
-  u.volume= parseFloat(document.getElementById('volSlider').value);
-  u.onstart = () => {
-    document.getElementById('waveform').classList.add('active');
-    document.getElementById('speakLbl').classList.add('on');
-    document.getElementById('btnStop').style.display = 'flex';
-  };
-  u.onend = u.onerror = () => {
-    document.getElementById('waveform').classList.remove('active');
-    document.getElementById('speakLbl').classList.remove('on');
-    document.getElementById('speakLbl').textContent = 'Ready to read';
-    document.getElementById('btnStop').style.display = 'none';
-    if (onEnd) onEnd();
-  };
-  synth.speak(u);
-}
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // APPROVE
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      function handleApprove(rowIndex, course) {
+        if (isProcessing) return;
 
-function readQ() {
-  const c = deck[idx];
-  document.getElementById('speakLbl').textContent = 'Reading question…';
-  speak('Question. ' + c.q);
-}
-function readA() {
-  const c = deck[idx];
-  document.getElementById('speakLbl').textContent = 'Reading answer…';
-  speak('Answer. ' + c.a);
-}
-function readBoth() {
-  const c = deck[idx];
-  document.getElementById('speakLbl').textContent = 'Reading question…';
-  speak('Question. ' + c.q, () => {
-    setTimeout(() => {
-      document.getElementById('speakLbl').textContent = 'Reading answer…';
-      speak('Answer. ' + c.a);
-    }, 700);
-  });
-}
-function stopTTS() {
-  if (synth) synth.cancel();
-  document.getElementById('waveform').classList.remove('active');
-  document.getElementById('speakLbl').classList.remove('on');
-  document.getElementById('speakLbl').textContent = 'Ready to read';
-  document.getElementById('btnStop').style.display = 'none';
-}
-function toggleAuto() {
-  autoOn = !autoOn;
-  const b = document.getElementById('btnAuto');
-  b.classList.toggle('on', autoOn);
-  b.innerHTML = (autoOn
-    ? '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg> Auto-read ON'
-    : '<svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/></svg> Auto-read');
-}
+        Swal.fire({
+          title: 'Approve?',
+          text: `Approve ${course}?`,
+          icon: 'question',
+          showCancelButton: true,
+          confirmButtonColor: '#28a745',
+          cancelButtonColor: '#6c757d',
+          background: '#1b263b',
+          color: '#e0e6ed',
+          confirmButtonText: 'Yes, Approve',
+          cancelButtonText: 'Cancel'
+        }).then(result => {
+          if (result.isConfirmed) {
+            setButtonsDisabled(true);
+            isProcessing = true;
 
-// ── CARD LOGIC ────────────────────────────────────────────────────────────
-let deck = [...ALL], idx = 0, flipped = false, ratings = {}, activeF = 'All';
-const SECS = ['All', ...new Set(ALL.map(c=>c.s))];
+            callApi('processAdminVerification', {
+              rowIndex: rowIndex,
+              decision: 'APPROVE',
+              notes: 'Verified'
+            }, 2)
+            .then(res => {
+              if (res.success) {
+                showAlert('success', 'Approved!', res.message || 'Code delivered successfully.')
+                  .then(() => loadDashboard());
+              } else {
+                showAlert('error', 'Error', res.message || 'Approval failed.');
+              }
+            })
+            .catch(() => {
+              showAlert('error', 'Network Error', 'Could not reach the server. Please try again.');
+            })
+            .finally(() => {
+              isProcessing = false;
+              setButtonsDisabled(false);
+            });
+          }
+        });
+      }
 
-function buildFilters() {
-  const row = document.getElementById('filterRow');
-  SECS.forEach(s => {
-    const n = s==='All' ? ALL.length : ALL.filter(c=>c.s===s).length;
-    const b = document.createElement('button');
-    b.className = 'filter-btn'+(s==='All'?' active':'');
-    b.textContent = (s==='All' ? 'All' : s)+' ('+n+')';
-    b.onclick = () => { document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active')); b.classList.add('active'); activeF=s; deck=s==='All'?[...ALL]:ALL.filter(c=>c.s===s); idx=0; flipped=false; ratings={}; stopTTS(); document.getElementById('theCard').classList.remove('flipped'); updateScores(); render(); };
-    row.appendChild(b);
-  });
-}
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // REJECT
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      function handleReject(rowIndex) {
+        if (isProcessing) return;
 
-function render() {
-  const cs = document.getElementById('completeScreen');
-  const scene = document.getElementById('cardScene');
-  const ctls = document.querySelectorAll('.controls');
-  const rr = document.getElementById('ratingRow');
+        Swal.fire({
+          title: 'Reject Payment',
+          input: 'text',
+          inputLabel: 'Reason for rejection',
+          inputPlaceholder: 'e.g. Blurry screenshot, wrong amount, etc.',
+          showCancelButton: true,
+          confirmButtonColor: '#dc3545',
+          cancelButtonColor: '#6c757d',
+          background: '#1b263b',
+          color: '#e0e6ed',
+          confirmButtonText: 'Reject',
+          cancelButtonText: 'Cancel',
+          inputValidator: (value) => {
+            if (!value || value.trim() === '') {
+              return 'Please enter a reason for rejection';
+            }
+            return null;
+          }
+        }).then(result => {
+          if (result.isConfirmed && result.value) {
+            setButtonsDisabled(true);
+            isProcessing = true;
 
-  if (idx >= deck.length) {
-    cs.classList.add('show'); scene.style.display='none';
-    ctls.forEach(c=>c.style.display='none'); rr.classList.remove('show');
-    const g = Object.values(ratings).filter(r=>r==='got').length;
-    const rv = Object.values(ratings).filter(r=>r==='review').length;
-    document.getElementById('fGot').textContent = g;
-    document.getElementById('fRev').textContent = rv;
-    document.getElementById('fPct').textContent = deck.length ? Math.round(g/deck.length*100)+'%' : '0%';
-    return;
-  }
+            callApi('processAdminVerification', {
+              rowIndex: rowIndex,
+              decision: 'REJECT',
+              notes: result.value.trim()
+            }, 2)
+            .then(res => {
+              if (res.success) {
+                showAlert('success', 'Rejected!', res.message || 'Rejection recorded.')
+                  .then(() => loadDashboard());
+              } else {
+                showAlert('error', 'Error', res.message || 'Rejection failed.');
+              }
+            })
+            .catch(() => {
+              showAlert('error', 'Network Error', 'Could not reach the server. Please try again.');
+            })
+            .finally(() => {
+              isProcessing = false;
+              setButtonsDisabled(false);
+            });
+          }
+        });
+      }
 
-  cs.classList.remove('show'); scene.style.display='block';
-  ctls.forEach(c=>c.style.display='flex');
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // UTILITY: Enable/disable all action buttons
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      function setButtonsDisabled(disabled) {
+        document.querySelectorAll('.btn-approve, .btn-reject').forEach(btn => {
+          btn.disabled = disabled;
+        });
+      }
 
-  const c = deck[idx];
-  document.getElementById('qText').textContent = c.q;
-  document.getElementById('aText').textContent = c.a;
-  ['cSecF','cSecB'].forEach(id => document.getElementById(id).textContent = c.s);
-  const num = (idx+1)+' / '+deck.length;
-  ['cNumF','cNumB'].forEach(id => document.getElementById(id).textContent = num);
-  document.getElementById('cCur').textContent = idx+1;
-  document.getElementById('cTot').textContent = deck.length;
-  const pct = deck.length ? Math.round(idx/deck.length*100) : 0;
-  document.getElementById('progBar').style.width = pct+'%';
-  document.getElementById('pctTxt').textContent = pct+'%';
-  document.getElementById('prevBtn').disabled = idx===0;
-  document.getElementById('nextBtn').disabled = idx>=deck.length-1;
-  rr.classList.toggle('show', flipped);
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // UTILITY: escapeHtml (XSS prevention)
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      function escapeHtml(str) {
+        if (!str) return '';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      }
 
-  if (autoOn && synth) setTimeout(() => readQ(), 300);
-}
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      // INIT – Auto-load on page load
+      // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+      document.addEventListener('DOMContentLoaded', function() {
+        loadDashboard();
+        // Expose globally for inline onclick
+        window.loadDashboard = loadDashboard;
+      });
 
-function flipCard() {
-  flipped = !flipped;
-  document.getElementById('theCard').classList.toggle('flipped', flipped);
-  document.getElementById('ratingRow').classList.toggle('show', flipped);
-  if (flipped && autoOn && synth) setTimeout(() => readA(), 450);
-}
-
-function nav(d) {
-  if (idx+d<0 || idx+d>deck.length-1) return;
-  stopTTS(); idx+=d; flipped=false;
-  document.getElementById('theCard').classList.remove('flipped');
-  render();
-}
-
-function rate(t) {
-  ratings[idx]=t; updateScores(); stopTTS();
-  if (idx<deck.length-1) { idx++; flipped=false; document.getElementById('theCard').classList.remove('flipped'); render(); }
-  else render();
-}
-
-function updateScores() {
-  const g=Object.values(ratings).filter(r=>r==='got').length;
-  const rv=Object.values(ratings).filter(r=>r==='review').length;
-  document.getElementById('sGot').textContent=g;
-  document.getElementById('sRev').textContent=rv;
-  document.getElementById('sUnseen').textContent=deck.length-g-rv;
-}
-
-function shuffleCards() {
-  stopTTS();
-  deck = activeF==='All'?[...ALL]:ALL.filter(c=>c.s===activeF);
-  for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]];}
-  idx=0;flipped=false;ratings={};
-  document.getElementById('theCard').classList.remove('flipped');
-  document.getElementById('completeScreen').classList.remove('show');
-  document.querySelectorAll('.controls').forEach(c=>c.style.display='flex');
-  document.getElementById('cardScene').style.display='block';
-  updateScores(); render();
-}
-
-function resetAll() {
-  stopTTS(); idx=0; flipped=false; ratings={};
-  document.getElementById('theCard').classList.remove('flipped');
-  document.getElementById('completeScreen').classList.remove('show');
-  document.querySelectorAll('.controls').forEach(c=>c.style.display='flex');
-  document.getElementById('cardScene').style.display='block';
-  deck=activeF==='All'?[...ALL]:ALL.filter(c=>c.s===activeF);
-  updateScores(); render();
-}
-
-// ── KEYBOARD ──────────────────────────────────────────────────────────────
-document.addEventListener('keydown', e => {
-  if (['SELECT','INPUT'].includes(e.target.tagName)) return;
-  if (e.code==='Space'){e.preventDefault();flipCard();}
-  if (e.code==='ArrowRight') nav(1);
-  if (e.code==='ArrowLeft')  nav(-1);
-  switch(e.key.toLowerCase()){
-    case 'g': if(flipped) rate('got'); break;
-    case 'r': if(flipped) rate('review'); break;
-    case 'q': readQ(); break;
-    case 'a': readA(); break;
-    case 's': stopTTS(); break;
-  }
-});
-
-// ── INIT ──────────────────────────────────────────────────────────────────
-buildFilters();
-render();
-initTTS();
-</script>
+    })();
+  </script>
 </body>
 </html>
+
